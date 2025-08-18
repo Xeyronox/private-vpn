@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -52,16 +53,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
-				}
+				// VPN Specific Colors
+				'vpn-secure': 'hsl(var(--vpn-secure))',
+				'vpn-connected': 'hsl(var(--vpn-connected))',
+				'vpn-connecting': 'hsl(var(--vpn-connecting))',
+				'vpn-disconnected': 'hsl(var(--vpn-disconnected))',
+				'vpn-cyber-blue': 'hsl(var(--vpn-cyber-blue))',
+				'vpn-dark-surface': 'hsl(var(--vpn-dark-surface))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

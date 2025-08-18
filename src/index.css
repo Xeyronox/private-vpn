@@ -1,96 +1,50 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* VPN Security Design System - Deep blues, cyber greens, and premium gradients */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 215 27% 8%;
+    --foreground: 210 20% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 215 27% 10%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 215 27% 10%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 210 20% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 215 27% 16%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 215 27% 16%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 80% 60%;
+    --accent-foreground: 210 20% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 215 27% 18%;
+    --input: 215 27% 18%;
+    --ring: 142 76% 36%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* VPN Specific Colors */
+    --vpn-secure: 142 76% 36%;
+    --vpn-connected: 120 70% 50%;
+    --vpn-connecting: 45 93% 58%;
+    --vpn-disconnected: 0 84% 60%;
+    --vpn-cyber-blue: 210 80% 60%;
+    --vpn-dark-surface: 215 27% 12%;
+    --vpn-glow: 142 76% 36%;
   }
 }
 
@@ -101,5 +55,117 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: linear-gradient(135deg, hsl(215 27% 8%) 0%, hsl(215 27% 6%) 100%);
+    min-height: 100vh;
   }
+}
+
+@layer components {
+  /* VPN Connection Button Variants */
+  .vpn-connect-button {
+    @apply relative overflow-hidden rounded-full w-32 h-32 flex items-center justify-center text-white font-semibold text-lg;
+    background: linear-gradient(135deg, hsl(var(--vpn-secure)) 0%, hsl(120 70% 45%) 100%);
+    box-shadow: 0 0 30px hsla(var(--vpn-glow), 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .vpn-connect-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px hsla(var(--vpn-glow), 0.5);
+  }
+
+  .vpn-connect-button.connecting {
+    background: linear-gradient(135deg, hsl(var(--vpn-connecting)) 0%, hsl(45 93% 50%) 100%);
+    animation: pulse-glow 2s infinite;
+  }
+
+  .vpn-connect-button.connected {
+    background: linear-gradient(135deg, hsl(var(--vpn-connected)) 0%, hsl(120 70% 45%) 100%);
+    box-shadow: 0 0 40px hsla(120 70% 50%, 0.4);
+  }
+
+  .vpn-connect-button.disconnected {
+    background: linear-gradient(135deg, hsl(var(--vpn-disconnected)) 0%, hsl(0 84% 55%) 100%);
+    box-shadow: 0 0 30px hsla(var(--vpn-disconnected), 0.2);
+  }
+
+  /* VPN Status Cards */
+  .vpn-status-card {
+    @apply bg-card border border-border rounded-xl p-6;
+    background: linear-gradient(135deg, hsl(var(--vpn-dark-surface)) 0%, hsl(215 27% 10%) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  .vpn-server-card {
+    @apply vpn-status-card hover:border-accent/50 transition-all cursor-pointer;
+  }
+
+  .vpn-server-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px hsla(var(--accent), 0.15);
+  }
+
+  .vpn-server-card.selected {
+    @apply border-accent;
+    box-shadow: 0 0 20px hsla(var(--accent), 0.3);
+  }
+
+  /* Security Indicators */
+  .security-shield {
+    @apply w-6 h-6 text-vpn-secure;
+    filter: drop-shadow(0 0 8px hsla(var(--vpn-secure), 0.6));
+  }
+
+  .connection-pulse {
+    animation: connection-pulse 2s infinite;
+  }
+
+  /* Stats Display */
+  .stats-display {
+    @apply text-2xl font-bold;
+    background: linear-gradient(90deg, hsl(var(--vpn-cyber-blue)), hsl(var(--vpn-secure)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 30px hsla(var(--vpn-connecting), 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 50px hsla(var(--vpn-connecting), 0.6);
+  }
+}
+
+@keyframes connection-pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+/* Tor Network Indicator */
+.tor-indicator {
+  @apply relative;
+}
+
+.tor-indicator::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, hsl(var(--vpn-secure)), hsl(var(--vpn-cyber-blue)));
+  z-index: -1;
+  animation: tor-glow 3s infinite;
+}
+
+@keyframes tor-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
