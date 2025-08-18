@@ -1,21 +1,36 @@
-
-import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Zap, Power, Globe } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Shield, Zap, Power, Globe, RotateCcw, Lock } from "lucide-react";
+import { EncryptionLevel } from "@/hooks/useVPNManager";
 
-const VPNSettings = () => {
-  const [autoConnect, setAutoConnect] = useState(false);
-  const [killSwitch, setKillSwitch] = useState(true);
-  const [torEnabled, setTorEnabled] = useState(false);
-  const [protocol, setProtocol] = useState('wireguard');
+interface VPNSettingsProps {
+  autoRotate: boolean;
+  setAutoRotate: (value: boolean) => void;
+  rotationInterval: number;
+  setRotationInterval: (value: number) => void;
+  encryptionLevel: EncryptionLevel;
+  setEncryptionLevel: (value: EncryptionLevel) => void;
+}
+
+const VPNSettings = ({
+  autoRotate,
+  setAutoRotate,
+  rotationInterval,
+  setRotationInterval,
+  encryptionLevel,
+  setEncryptionLevel
+}: VPNSettingsProps) => {
+  const handleRotationIntervalChange = (value: number[]) => {
+    setRotationInterval(value[0] * 60000); // Convert minutes to milliseconds
+  };
 
   return (
     <div className="vpn-status-card">
       <div className="flex items-center space-x-2 mb-6">
         <Shield className="w-6 h-6 text-vpn-secure" />
-        <h3 className="text-xl font-semibold">VPN Settings</h3>
+        <h3 className="text-xl font-semibold">Advanced VPN Settings</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -23,57 +38,66 @@ const VPNSettings = () => {
         <div>
           <h4 className="text-lg font-medium mb-4 flex items-center space-x-2">
             <Power className="w-5 h-5 text-vpn-cyber-blue" />
-            <span>Connection</span>
+            <span>Connection & Security</span>
           </h4>
           
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="auto-connect" className="text-base">Auto-connect on startup</Label>
-                <p className="text-sm text-muted-foreground">Automatically connect when the app starts</p>
+                <Label htmlFor="auto-rotate" className="text-base">Auto Server Rotation</Label>
+                <p className="text-sm text-muted-foreground">Automatically switch servers for enhanced security</p>
               </div>
               <Switch
-                id="auto-connect"
-                checked={autoConnect}
-                onCheckedChange={setAutoConnect}
+                id="auto-rotate"
+                checked={autoRotate}
+                onCheckedChange={setAutoRotate}
               />
             </div>
 
-            <div className="flex items-center justify-between">
+            {autoRotate && (
               <div>
-                <Label htmlFor="kill-switch" className="text-base">Kill Switch</Label>
-                <p className="text-sm text-muted-foreground">Block internet if VPN disconnects</p>
+                <Label className="text-base mb-2 block">Rotation Interval</Label>
+                <div className="px-3 py-2 bg-vpn-dark-surface rounded-lg">
+                  <Slider
+                    value={[rotationInterval / 60000]}
+                    onValueChange={handleRotationIntervalChange}
+                    max={30}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>1 min</span>
+                    <span>{Math.round(rotationInterval / 60000)} minutes</span>
+                    <span>30 min</span>
+                  </div>
+                </div>
               </div>
-              <Switch
-                id="kill-switch"
-                checked={killSwitch}
-                onCheckedChange={setKillSwitch}
-              />
-            </div>
+            )}
 
             <div>
-              <Label className="text-base mb-2 block">VPN Protocol</Label>
-              <Select value={protocol} onValueChange={setProtocol}>
+              <Label className="text-base mb-2 block">Encryption Level</Label>
+              <Select value={encryptionLevel} onValueChange={(value: EncryptionLevel) => setEncryptionLevel(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="wireguard">
+                  <SelectItem value="standard">
                     <div className="flex items-center space-x-2">
-                      <Zap className="w-4 h-4" />
-                      <span>WireGuard (Recommended)</span>
+                      <Lock className="w-4 h-4" />
+                      <span>Standard AES-256</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="openvpn">
+                  <SelectItem value="military">
                     <div className="flex items-center space-x-2">
                       <Shield className="w-4 h-4" />
-                      <span>OpenVPN</span>
+                      <span>Military Grade (Recommended)</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="ikev2">
+                  <SelectItem value="quantum">
                     <div className="flex items-center space-x-2">
-                      <Globe className="w-4 h-4" />
-                      <span>IKEv2</span>
+                      <Zap className="w-4 h-4" />
+                      <span>Quantum Resistant</span>
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -82,46 +106,46 @@ const VPNSettings = () => {
           </div>
         </div>
 
-        {/* Privacy Settings */}
+        {/* Advanced Security */}
         <div>
           <h4 className="text-lg font-medium mb-4 flex items-center space-x-2">
             <Shield className="w-5 h-5 text-vpn-secure" />
-            <span>Privacy & Security</span>
+            <span>Hardware Integration</span>
           </h4>
           
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="tor-network" className="text-base">Tor Network Integration</Label>
-                <p className="text-sm text-muted-foreground">Route traffic through Tor for maximum anonymity</p>
-              </div>
-              <Switch
-                id="tor-network"
-                checked={torEnabled}
-                onCheckedChange={setTorEnabled}
-              />
-            </div>
-
-            <div className="p-4 bg-vpn-secure/10 border border-vpn-secure/20 rounded-lg">
+            <div className="p-4 bg-gradient-to-r from-vpn-secure/10 to-vpn-cyber-blue/10 border border-vpn-secure/20 rounded-lg">
               <div className="flex items-start space-x-3">
                 <Shield className="w-5 h-5 text-vpn-secure mt-0.5" />
                 <div>
-                  <h5 className="font-medium text-vpn-secure">End-to-End Encryption Active</h5>
+                  <h5 className="font-medium text-vpn-secure">Hardware Security Module</h5>
                   <p className="text-sm text-muted-foreground mt-1">
-                    All traffic is encrypted with military-grade AES-256 encryption before leaving your device.
+                    Keys stored in device secure enclave with hardware-backed encryption
                   </p>
                 </div>
               </div>
             </div>
 
-            {torEnabled && (
-              <div className="p-4 bg-vpn-cyber-blue/10 border border-vpn-cyber-blue/20 rounded-lg tor-indicator">
+            <div className="p-4 bg-vpn-cyber-blue/10 border border-vpn-cyber-blue/20 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <RotateCcw className="w-5 h-5 text-vpn-cyber-blue mt-0.5" />
+                <div>
+                  <h5 className="font-medium text-vpn-cyber-blue">Dynamic Key Rotation</h5>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Encryption keys automatically rotated every 60 seconds
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {encryptionLevel === 'quantum' && (
+              <div className="p-4 bg-gradient-to-r from-purple-500/10 to-vpn-cyber-blue/10 border border-purple-500/20 rounded-lg">
                 <div className="flex items-start space-x-3">
-                  <Globe className="w-5 h-5 text-vpn-cyber-blue mt-0.5" />
+                  <Zap className="w-5 h-5 text-purple-400 mt-0.5" />
                   <div>
-                    <h5 className="font-medium text-vpn-cyber-blue">Tor Network Enabled</h5>
+                    <h5 className="font-medium text-purple-400">Quantum Resistant Encryption</h5>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Triple-layer encryption through Tor network provides maximum anonymity.
+                      Post-quantum cryptography algorithms protect against future quantum computers
                     </p>
                   </div>
                 </div>
