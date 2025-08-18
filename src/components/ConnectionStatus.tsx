@@ -1,6 +1,6 @@
 
 import { Shield, Globe, Lock } from "lucide-react";
-import { ConnectionState } from "@/pages/Index";
+import { ConnectionState } from "@/hooks/useVPNManager";
 
 interface Server {
   id: string;

@@ -1,6 +1,6 @@
 
 import { Shield, Wifi } from "lucide-react";
-import { ConnectionState } from "@/pages/Index";
+import { ConnectionState } from "@/hooks/useVPNManager";
 
 interface VPNHeaderProps {
   connectionState: ConnectionState;

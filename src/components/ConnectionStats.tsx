@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUp, ArrowDown, Clock, Shield } from "lucide-react";
-import { ConnectionState } from "@/pages/Index";
+import { ConnectionState } from "@/hooks/useVPNManager";
 
 interface ConnectionStatsProps {
   connectionState: ConnectionState;
