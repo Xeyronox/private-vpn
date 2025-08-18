@@ -1,0 +1,28 @@
+
+[Unit]
+Description=SecureVault VPN Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=vpn
+Group=vpn
+WorkingDirectory=/opt/securevault-vpn
+ExecStart=/usr/bin/node scripts/terminal-vpn.js
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=securevault-vpn
+Environment=NODE_ENV=production
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/securevault-vpn
+
+[Install]
+WantedBy=multi-user.target
