@@ -1,18 +1,21 @@
 
 import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VPNHeader from "@/components/VPNHeader";
-import MobileConnectionStatus from "@/components/MobileConnectionStatus";
+import ConnectionStatus from "@/components/ConnectionStatus";
 import ServerSelector from "@/components/ServerSelector";
 import ConnectionStats from "@/components/ConnectionStats";
 import VPNSettings from "@/components/VPNSettings";
-import { Button } from "@/components/ui/button";
-import { Shield, Settings, Activity, RotateCcw } from "lucide-react";
+import VPNPermissions from "@/components/VPNPermissions";
+import NativeConnectionButton from "@/components/NativeConnectionButton";
+import MobileConnectionStatus from "@/components/MobileConnectionStatus";
 import { useVPNManager } from "@/hooks/useVPNManager";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
-  const [showSettings, setShowSettings] = useState(false);
   const {
     connectionState,
+    setConnectionState,
     selectedServer,
     setSelectedServer,
     currentIP,
@@ -30,94 +33,92 @@ const Index = () => {
     isNative
   } = useVPNManager();
 
+  const isMobile = useIsMobile();
+  const [activeTab, setActiveTab] = useState("connect");
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-4 max-w-6xl">
+      <div className="container mx-auto px-4 py-6 max-w-6xl">
         <VPNHeader connectionState={connectionState} />
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
-          {/* Main Connection Panel */}
-          <div className="lg:col-span-2 space-y-4">
-            <MobileConnectionStatus 
+        {isMobile ? (
+          <div className="mt-6 space-y-6">
+            <MobileConnectionStatus
               connectionState={connectionState}
               onConnect={handleConnect}
+              selectedServer={selectedServer}
               currentIP={currentIP}
               protectedIP={protectedIP}
-              selectedServer={selectedServer}
               encryptionLevel={encryptionLevel}
               isNative={isNative}
             />
             
-            <ConnectionStats 
-              connectionState={connectionState}
-              bytesTransferred={bytesTransferred}
-              connectionTime={connectionTime}
-            />
-          </div>
-          
-          {/* Sidebar */}
-          <div className="space-y-4">
-            <ServerSelector 
-              selectedServer={selectedServer}
-              onServerSelect={setSelectedServer}
-            />
-            
-            <div className="vpn-status-card">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Quick Actions</h3>
-              </div>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="connect">Connect</TabsTrigger>
+                <TabsTrigger value="servers">Servers</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => setShowSettings(!showSettings)}
-                >
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                >
-                  <Activity className="mr-2 h-4 w-4" />
-                  Speed Test
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={rotateServer}
-                  disabled={connectionState !== 'connected'}
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Rotate Server
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start tor-indicator"
-                  disabled={connectionState !== 'connected'}
-                >
-                  <Shield className="mr-2 h-4 w-4" />
-                  Tor Network {connectionState === 'connected' ? '(Active)' : '(Inactive)'}
-                </Button>
+              <TabsContent value="connect" className="space-y-4">
+                {isNative && <VPNPermissions />}
+                <NativeConnectionButton selectedServer={selectedServer.name} />
+              </TabsContent>
+              
+              <TabsContent value="servers" className="space-y-4">
+                <ServerSelector
+                  selectedServer={selectedServer}
+                  onServerSelect={setSelectedServer}
+                />
+              </TabsContent>
+              
+              <TabsContent value="settings" className="space-y-4">
+                <VPNSettings
+                  encryptionLevel={encryptionLevel}
+                  setEncryptionLevel={setEncryptionLevel}
+                  autoRotate={autoRotate}
+                  setAutoRotate={setAutoRotate}
+                  rotationInterval={rotationInterval}
+                  setRotationInterval={setRotationInterval}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        ) : (
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <ConnectionStatus
+                connectionState={connectionState}
+                selectedServer={selectedServer}
+                currentIP={currentIP}
+                protectedIP={protectedIP}
+                onConnect={handleConnect}
+              />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ServerSelector
+                  selectedServer={selectedServer}
+                  onServerSelect={setSelectedServer}
+                />
+                <ConnectionStats
+                  connectionState={connectionState}
+                  bytesTransferred={bytesTransferred}
+                  connectionTime={connectionTime}
+                />
               </div>
             </div>
-          </div>
-        </div>
-        
-        {showSettings && (
-          <div className="mt-6">
-            <VPNSettings 
-              autoRotate={autoRotate}
-              setAutoRotate={setAutoRotate}
-              rotationInterval={rotationInterval}
-              setRotationInterval={setRotationInterval}
-              encryptionLevel={encryptionLevel}
-              setEncryptionLevel={setEncryptionLevel}
-            />
+            
+            <div className="space-y-6">
+              {isNative && <VPNPermissions />}
+              <VPNSettings
+                encryptionLevel={encryptionLevel}
+                setEncryptionLevel={setEncryptionLevel}
+                autoRotate={autoRotate}
+                setAutoRotate={setAutoRotate}
+                rotationInterval={rotationInterval}
+                setRotationInterval={setRotationInterval}
+              />
+            </div>
           </div>
         )}
       </div>

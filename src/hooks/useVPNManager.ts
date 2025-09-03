@@ -137,6 +137,7 @@ export const useVPNManager = () => {
 
   return {
     connectionState,
+    setConnectionState,
     selectedServer,
     setSelectedServer,
     currentIP,
