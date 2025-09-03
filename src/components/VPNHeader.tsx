@@ -27,6 +27,12 @@ const VPNHeader = ({ connectionState }: VPNHeaderProps) => {
           color: 'text-vpn-disconnected',
           pulseColor: 'bg-vpn-disconnected'
         };
+      default:
+        return {
+          text: 'Unknown',
+          color: 'text-muted-foreground',
+          pulseColor: 'bg-muted-foreground'
+        };
     }
   };
 
