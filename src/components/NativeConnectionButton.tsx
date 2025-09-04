@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Power, Smartphone, Wifi, Loader2 } from 'lucide-react';
+import { Shield, Wifi, WifiOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useNativeVPN } from '@/hooks/useNativeVPN';
 import { useVPNManager } from '@/hooks/useVPNManager';
 import { toast } from 'sonner';
@@ -11,110 +13,136 @@ interface NativeConnectionButtonProps {
 
 const NativeConnectionButton = ({ selectedServer }: NativeConnectionButtonProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
-  const { isNative, permissions, createVPNProfile, connectToVPN, disconnectVPN } = useNativeVPN();
-  const { connectionState, setConnectionState } = useVPNManager();
+  const { 
+    permissions, 
+    isNative, 
+    platform,
+    requestPermissions,
+    createVPNProfile,
+    connectToVPN,
+    disconnectVPN,
+    getNetworkStatus
+  } = useNativeVPN();
+  
+  const { connectionState, handleConnect } = useVPNManager();
 
-  const handleNativeConnection = async () => {
+  const handleNativeConnect = async () => {
+    if (!isNative) {
+      toast.info("Native VPN features require the mobile app");
+      return;
+    }
+
     if (!permissions.vpnAccess) {
-      toast.error('VPN permissions not granted. Please enable permissions first.');
+      toast.error("VPN permissions required. Please grant permissions first.");
       return;
     }
 
     setIsConnecting(true);
     
     try {
+      await handleConnect();
+      
       if (connectionState === 'connected') {
-        // Disconnect
-        setConnectionState('connecting');
-        const success = await disconnectVPN();
-        
-        if (success) {
-          setConnectionState('disconnected');
-          toast.success('Disconnected from VPN');
-        } else {
-          setConnectionState('connected');
-          toast.error('Failed to disconnect from VPN');
-        }
+        toast.success(`Connected to ${selectedServer}`);
       } else {
-        // Connect
-        setConnectionState('connecting');
-        const profile = await createVPNProfile({ name: selectedServer });
-        const success = await connectToVPN(profile);
-        
-        if (success) {
-          setConnectionState('connected');
-          toast.success(`Connected to ${selectedServer}`);
-        } else {
-          setConnectionState('disconnected');
-          toast.error('Failed to connect to VPN');
-        }
+        toast.success(`Disconnected from VPN`);
       }
     } catch (error) {
       console.error('Native VPN operation failed:', error);
-      setConnectionState('disconnected');
-      toast.error('VPN operation failed. Please try again.');
+      toast.error(`Connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsConnecting(false);
     }
   };
 
-  const getButtonText = () => {
-    if (isConnecting) return 'Processing...';
-    if (connectionState === 'connected') return 'Disconnect VPN';
-    if (connectionState === 'connecting') return 'Connecting...';
-    return 'Connect VPN';
+  const getConnectionIcon = () => {
+    if (isConnecting || connectionState === 'connecting') {
+      return <Loader2 className="h-5 w-5 animate-spin" />;
+    }
+    
+    if (connectionState === 'connected') {
+      return <Shield className="h-5 w-5 text-vpn-secure" />;
+    }
+    
+    return <WifiOff className="h-5 w-5 text-muted-foreground" />;
   };
 
-  const getButtonIcon = () => {
+  const getButtonText = () => {
     if (isConnecting || connectionState === 'connecting') {
-      return <Loader2 className="w-5 h-5 animate-spin" />;
+      return 'Connecting...';
     }
-    if (isNative) {
-      return <Smartphone className="w-5 h-5" />;
+    
+    if (connectionState === 'connected') {
+      return 'Disconnect VPN';
     }
-    return <Wifi className="w-5 h-5" />;
+    
+    return 'Connect to VPN';
   };
 
   const getButtonVariant = () => {
-    if (connectionState === 'connected') return 'destructive';
+    if (connectionState === 'connected') {
+      return 'destructive';
+    }
     return 'default';
   };
 
-  const isDisabled = () => {
-    return (
-      isConnecting || 
-      connectionState === 'connecting' || 
-      (isNative && !permissions.vpnAccess) ||
-      !selectedServer
-    );
-  };
-
   return (
-    <div className="space-y-3">
-      <Button
-        onClick={handleNativeConnection}
-        disabled={isDisabled()}
-        variant={getButtonVariant()}
-        size="lg"
-        className="w-full h-14 text-lg font-semibold"
-      >
-        {getButtonIcon()}
-        {getButtonText()}
-      </Button>
-      
-      {isNative && (
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Smartphone className="w-4 h-4" />
-          <span>Native Mobile VPN</span>
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg">Native VPN Connection</CardTitle>
+            <CardDescription>
+              {isNative 
+                ? `Hardware-accelerated encryption on ${platform}` 
+                : 'Available in mobile app only'
+              }
+            </CardDescription>
+          </div>
+          <div className="flex items-center space-x-2">
+            {isNative && (
+              <Badge variant={permissions.vpnAccess ? 'default' : 'destructive'}>
+                {permissions.vpnAccess ? 'Authorized' : 'Unauthorized'}
+              </Badge>
+            )}
+            <Badge variant="outline">{connectionState}</Badge>
+          </div>
         </div>
-      )}
+      </CardHeader>
       
-      {!selectedServer && (
-        <p className="text-sm text-muted-foreground text-center">
-          Please select a server first
-        </p>
-      )}
-    </div>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <Wifi className="h-4 w-4 text-vpn-cyber-blue" />
+            <span className="text-sm font-medium">Server: {selectedServer}</span>
+          </div>
+          {getConnectionIcon()}
+        </div>
+        
+        <Button
+          onClick={handleNativeConnect}
+          disabled={isConnecting || connectionState === 'connecting' || (!isNative)}
+          variant={getButtonVariant()}
+          size="lg"
+          className="w-full vpn-button"
+        >
+          {getButtonText()}
+        </Button>
+        
+        {!isNative && (
+          <p className="text-xs text-muted-foreground text-center">
+            Install the mobile app for native VPN capabilities including 
+            hardware encryption and background operation.
+          </p>
+        )}
+        
+        {isNative && !permissions.vpnAccess && (
+          <p className="text-xs text-destructive text-center">
+            VPN permissions are required. Use the permissions section above to grant access.
+          </p>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

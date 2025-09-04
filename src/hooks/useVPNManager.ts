@@ -95,24 +95,50 @@ export const useVPNManager = () => {
       setBytesTransferred({ up: 0, down: 0 });
 
       try {
-        // Create and connect to VPN profile
-        const profile = await createVPNProfile(selectedServer);
-        const success = await connectToVPN(profile);
+        if (isNative) {
+          // Create and connect to VPN profile for native platforms
+          const profile = await createVPNProfile(selectedServer);
+          const success = await connectToVPN(profile);
 
-        if (success) {
+          if (success) {
+            setConnectionState('connected');
+            setProtectedIP(generateProtectedIP(selectedServer.id));
+            setConnectionTime(Date.now());
+          } else {
+            setConnectionState('disconnected');
+            throw new Error('Failed to establish native VPN connection');
+          }
+        } else {
+          // Simulate connection for web platforms
+          await new Promise(resolve => setTimeout(resolve, 2000));
           setConnectionState('connected');
           setProtectedIP(generateProtectedIP(selectedServer.id));
           setConnectionTime(Date.now());
-        } else {
-          setConnectionState('disconnected');
         }
       } catch (error) {
         console.error('Connection failed:', error);
         setConnectionState('disconnected');
+        // Reset UI state on error
+        setProtectedIP('');
+        setConnectionTime(0);
+        setBytesTransferred({ up: 0, down: 0 });
       }
     } else if (connectionState === 'connected' || connectionState === 'rotating') {
-      const success = await disconnectVPN();
-      if (success) {
+      try {
+        if (isNative) {
+          const success = await disconnectVPN();
+          if (!success) {
+            throw new Error('Failed to disconnect from VPN');
+          }
+        }
+        
+        setConnectionState('disconnected');
+        setProtectedIP('');
+        setConnectionTime(0);
+        setBytesTransferred({ up: 0, down: 0 });
+      } catch (error) {
+        console.error('Disconnection failed:', error);
+        // Force disconnect UI state even if native disconnect fails
         setConnectionState('disconnected');
         setProtectedIP('');
         setConnectionTime(0);
