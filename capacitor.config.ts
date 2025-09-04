@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.818bd0396a9d45cb980e122ca7657ed4',
+  appId: 'app.lovable.privatevpn',
   appName: 'SecureVault VPN',
   webDir: 'dist',
   server: {
