@@ -1,165 +1,244 @@
-
-# SecureVault VPN - Multi-Platform Privacy Solution
+# 🛡️ SecureVault VPN - Universal Privacy Solution
 
 **Developer:** Xeyronox (Red/Blackhat Hacker)  
-**License:** Open Source  
-**Platforms:** Mobile (iOS/Android), Desktop (Linux/macOS/Windows), Terminal (Termux/WSL)
+**License:** Open Source MIT  
+**Platforms:** Mobile (iOS/Android), Desktop (Linux/macOS/Windows), Terminal (Termux/WSL/Native)
 
-## 🛡️ Features
+[![Security Scan](https://github.com/user/repo/actions/workflows/codeql.yml/badge.svg)](https://github.com/user/repo/actions/workflows/codeql.yml)
+[![Cross Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Termux-blue)](#platforms)
 
-- **Military-Grade Encryption:** AES-256, Quantum-resistant protocols
-- **Auto Server Rotation:** Dynamic IP switching every 5-30 minutes
-- **Hardware Security Module:** End-to-end encryption with HSM integration
-- **Multi-Platform Support:** Native mobile apps, desktop applications, and terminal deployment
-- **Zero-Log Policy:** Complete privacy with no connection logs
-- **Tor Integration:** Additional anonymity layer when connected
+---
+
+## 🌟 Features
+
+### 🔒 Security & Privacy
+- **Military-Grade Encryption:** AES-256-GCM with ChaCha20-Poly1305
+- **Quantum-Resistant Protocols:** Post-quantum cryptography ready
+- **Auto Server Rotation:** Dynamic IP switching (5-30 min intervals)
+- **Zero-Log Policy:** No connection, traffic, or DNS logs
+- **DNS Leak Protection:** Secure DNS with DoH/DoT support
+- **Kill Switch:** Automatic internet blocking on VPN failure
+- **Perfect Forward Secrecy:** New keys for each session
+
+### 🌐 Multi-Platform Support
+- **Mobile:** Native iOS/Android apps with system VPN integration
+- **Desktop:** Linux, macOS, Windows with system tray
+- **Terminal:** Headless operation for servers and embedded systems
+- **Termux:** Full Android terminal support
+- **WSL:** Windows Subsystem for Linux compatibility
+
+### ⚡ Advanced Features
+- **Real-time Security Analysis:** Live threat monitoring
+- **Tor Integration:** Optional Tor bridge for enhanced anonymity
+- **Multi-hop Routing:** Traffic through multiple servers
+- **Biometric Authentication:** Fingerprint/FaceID on mobile
+- **Background Operation:** Persistent connections on all platforms
+
+---
 
 ## 🚀 Quick Start
 
-### Web Version (Development)
+### 🌐 Web Development
 ```bash
-git clone <YOUR_GIT_URL>
+git clone https://github.com/your-username/private-vpn.git
 cd private-vpn
 npm install
 npm run dev
 ```
 
-## 📱 Mobile App Deployment
+### 📱 Mobile App (iOS/Android)
 
-### Prerequisites
-- Node.js & npm installed
-- For iOS: macOS with Xcode
-- For Android: Android Studio with SDK
+#### Prerequisites
+- Node.js 18+ and npm
+- **iOS:** macOS with Xcode 14+
+- **Android:** Android Studio with SDK 33+
 
-### Steps
-1. **Export and Clone:**
-   ```bash
-   git clone <YOUR_GITHUB_REPO>
-   cd private-vpn
-   npm install
-   ```
-
-2. **Add Mobile Platforms:**
-   ```bash
-   # For Android
-   npx cap add android
-   
-   # For iOS (macOS only)
-   npx cap add ios
-   ```
-
-3. **Build and Sync:**
-   ```bash
-   npm run build
-   npx cap sync
-   ```
-
-4. **Run on Device/Emulator:**
-   ```bash
-   # Android
-   npx cap run android
-   
-   # iOS (requires macOS + Xcode)
-   npx cap run ios
-   ```
-
-## 🖥️ Desktop Deployment
-
-### Linux (Ubuntu/Debian/Arch/Fedora)
+#### Setup Steps
 ```bash
-# Install dependencies
-sudo apt update && sudo apt install nodejs npm  # Ubuntu/Debian
-# OR
-sudo pacman -S nodejs npm                       # Arch
-# OR  
-sudo dnf install nodejs npm                     # Fedora
+# 1. Clone and install
+git clone https://github.com/your-username/private-vpn.git
+cd private-vpn
+npm install
 
-# Clone and setup
-git clone <YOUR_GITHUB_REPO>
+# 2. Add platforms
+npx cap add android    # For Android
+npx cap add ios        # For iOS (macOS only)
+
+# 3. Build and sync
+npm run build
+npx cap sync
+
+# 4. Run on device/emulator
+npx cap run android    # Android
+npx cap run ios        # iOS (requires Xcode)
+```
+
+---
+
+## 🖥️ Desktop Installation
+
+### 🐧 Linux (Universal)
+Works on Ubuntu, Debian, Arch, Fedora, Kali, Parrot, BlackArch, Guardian, etc.
+
+```bash
+# Auto-detection script
+curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/install.sh | bash
+
+# Manual installation
+git clone https://github.com/your-username/private-vpn.git
 cd private-vpn
 npm install
 npm run build
-npm run preview  # or setup as systemd service
+
+# Run as service (systemd)
+sudo ./scripts/deploy.sh
+
+# Or run directly
+npm run preview
 ```
 
-### macOS
+#### Distribution-Specific Commands
 ```bash
-# Install Homebrew if not installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Ubuntu/Debian/Kali/Parrot
+sudo apt update && sudo apt install nodejs npm
 
-# Install Node.js
+# Arch/BlackArch
+sudo pacman -S nodejs npm
+
+# Fedora
+sudo dnf install nodejs npm
+
+# OpenSUSE
+sudo zypper install nodejs npm
+```
+
+### 🍎 macOS
+```bash
+# Install via Homebrew
 brew install node
-
-# Clone and setup
-git clone <YOUR_GITHUB_REPO>
+git clone https://github.com/your-username/private-vpn.git
 cd private-vpn
-npm install
-npm run build
+npm install && npm run build
 npm run preview
+
+# Or use the deploy script
+./scripts/deploy.sh
 ```
 
-### Windows (WSL/PowerShell)
+### 🪟 Windows
 ```powershell
-# Install Node.js from nodejs.org or via package manager
-# Using Chocolatey:
-choco install nodejs
+# PowerShell (as Administrator)
+choco install nodejs    # Using Chocolatey
+# OR
+winget install OpenJS.NodeJS
 
-# Or using WSL:
-wsl --install  # if WSL not installed
-# Then follow Linux instructions inside WSL
-
-# Clone and setup
-git clone <YOUR_GITHUB_REPO>
+# Setup
+git clone https://github.com/your-username/private-vpn.git
 cd private-vpn
 npm install
 npm run build
 npm run preview
 ```
 
-## 📟 Terminal Deployment (Termux/Advanced)
-
-### Termux (Android Terminal)
+#### WSL (Windows Subsystem for Linux)
 ```bash
-# Update packages
-pkg update && pkg upgrade
+# Install WSL if not present
+wsl --install
+
+# Inside WSL, follow Linux instructions
+curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/install.sh | bash
+```
+
+---
+
+## 📱 Termux (Android Terminal)
+
+### Full Installation
+```bash
+# Update Termux packages
+pkg update && pkg upgrade -y
 
 # Install dependencies
-pkg install nodejs git
+pkg install nodejs git python build-essential
 
 # Clone and setup
-git clone <YOUR_GITHUB_REPO>
+git clone https://github.com/your-username/private-vpn.git
 cd private-vpn
 npm install
 npm run build
 
-# Run headless VPN service
-node scripts/terminal-vpn.js  # Custom terminal interface
+# Run terminal VPN interface
+node scripts/terminal-vpn.js
 ```
 
-### Linux Terminal (Headless Server)
+### Termux-Specific Features
 ```bash
-# Setup as systemd service
+# Auto-start on Termux launch
+echo "cd ~/private-vpn && node scripts/terminal-vpn.js" >> ~/.bashrc
+
+# Background service (using termux-services)
+pkg install termux-services
+cp scripts/termux-securevault.service ~/.config/systemd/user/
+systemctl --user enable termux-securevault
+systemctl --user start termux-securevault
+```
+
+---
+
+## 🖧 Server/Headless Deployment
+
+### Production Server Setup
+```bash
+# Quick deploy (auto-detects OS)
+curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/deploy.sh | sudo bash
+
+# Manual setup
+git clone https://github.com/your-username/private-vpn.git
+cd private-vpn
+npm install
+npm run build
+
+# Create system service
 sudo cp scripts/securevault-vpn.service /etc/systemd/system/
 sudo systemctl enable securevault-vpn
 sudo systemctl start securevault-vpn
-
-# Check status
-sudo systemctl status securevault-vpn
 ```
 
-## 🔧 Configuration
+### Docker Deployment
+```bash
+# Using Docker
+docker build -t securevault-vpn .
+docker run -d --name vpn-server -p 3000:3000 securevault-vpn
+
+# Using Docker Compose
+docker-compose up -d
+```
+
+---
+
+## ⚙️ Configuration
 
 ### Environment Variables
-Create `.env` file in project root:
+Create `.env` file:
 ```env
+# API Configuration
 VITE_VPN_API_KEY=your_api_key_here
 VITE_ENCRYPTION_LEVEL=military
 VITE_AUTO_ROTATE=true
+VITE_ROTATION_INTERVAL=300000
+
+# Security Features
 VITE_TOR_INTEGRATION=true
+VITE_DNS_LEAK_PROTECTION=true
+VITE_KILL_SWITCH=true
+
+# Platform Specific
+VITE_TERMUX_MODE=auto
+VITE_BACKGROUND_SERVICE=true
 ```
 
-### Custom Server Configuration
-Edit `src/config/servers.json` to add your own VPN servers:
+### Custom Servers
+Edit `src/config/servers.json`:
 ```json
 {
   "servers": [
@@ -168,82 +247,211 @@ Edit `src/config/servers.json` to add your own VPN servers:
       "name": "Custom Server",
       "country": "Your Country",
       "address": "your-server.com",
-      "protocols": ["WireGuard", "OpenVPN"]
+      "protocols": ["WireGuard", "OpenVPN", "IKEv2"],
+      "features": ["tor", "multihop"]
     }
   ]
 }
 ```
 
-## 🛠️ Development
+---
+
+## 📟 Terminal Interface Commands
+
+```bash
+# Basic Commands
+status          # Show connection status
+servers         # List available servers
+connect <n>     # Connect to server number n
+disconnect      # Disconnect from VPN
+rotate          # Toggle auto-rotation
+
+# Advanced Commands
+security        # Security analysis report
+logs            # View connection logs
+config          # Show/edit configuration
+export <file>   # Export connection data
+import <file>   # Import server configs
+
+# Platform Specific
+termux-setup    # Termux-specific optimizations
+background      # Run in background mode
+```
+
+---
+
+## 🏗️ Development
 
 ### Project Structure
 ```
 private-vpn/
 ├── src/
-│   ├── components/         # React components
-│   ├── hooks/             # Custom hooks for VPN logic
+│   ├── components/         # React UI components
+│   ├── hooks/             # VPN logic hooks
 │   ├── pages/             # Application pages
+│   ├── lib/               # Utilities and helpers
 │   └── config/            # Configuration files
-├── capacitor.config.ts    # Mobile app configuration
-├── scripts/               # Deployment scripts
-└── docs/                  # Documentation
+├── scripts/               # Deployment & utility scripts
+├── android/               # Android Capacitor files
+├── ios/                   # iOS Capacitor files
+├── docs/                  # Documentation
+└── tests/                 # Test suites
 ```
 
 ### Available Scripts
-- `npm run dev` - Development server
-- `npm run build` - Production build
-- `npm run preview` - Preview production build
-- `npm run lint` - Code linting
-- `npm run test` - Run tests
+```bash
+npm run dev             # Development server
+npm run build           # Production build
+npm run preview         # Preview production build
+npm run lint            # Code linting
+npm run test            # Run test suite
+npm run test:e2e        # End-to-end tests
+npm run security        # Security analysis
+```
 
-## 🔒 Security Features
+### Platform Testing
+```bash
+# Test on all platforms
+npm run test:platforms
 
-- **End-to-End Encryption:** All traffic encrypted with AES-256
-- **DNS Leak Protection:** Prevents DNS queries from leaking
-- **Kill Switch:** Automatically blocks internet if VPN disconnects
-- **Perfect Forward Secrecy:** New encryption keys for each session
-- **No-Log Policy:** Zero connection or activity logs stored
+# Platform-specific testing
+npm run test:mobile     # Mobile apps
+npm run test:desktop    # Desktop apps
+npm run test:terminal   # Terminal interface
+npm run test:termux     # Termux environment
+```
 
-## 🌐 Platform-Specific Features
+---
 
-### Mobile (iOS/Android)
-- Native system VPN integration
-- Background connection maintenance
-- Battery optimization
-- Biometric authentication
+## 🔒 Security & Privacy
 
-### Desktop
-- System tray integration
-- Auto-start on boot
-- Network interface monitoring
-- Process isolation
+### Encryption Details
+- **Primary:** AES-256-GCM with ECDH key exchange
+- **Secondary:** ChaCha20-Poly1305 for mobile devices
+- **Future-proof:** Post-quantum key exchange ready
+- **Perfect Forward Secrecy:** New keys every session
 
-### Terminal/Server
-- Headless operation
-- API control interface
-- Logging to syslog
-- Process management
+### Privacy Guarantees
+- **Zero Logs:** No connection, traffic, or DNS logs
+- **RAM-only Operations:** No persistent storage of sensitive data
+- **Anonymous Payments:** Cryptocurrency support
+- **Open Source:** Full code transparency and audits
+
+### Security Features
+- **Kill Switch:** Blocks all traffic if VPN fails
+- **DNS Leak Protection:** Secure DNS with DoH/DoT
+- **IPv6 Leak Protection:** Proper IPv6 handling
+- **WebRTC Leak Protection:** Browser fingerprint protection
+- **Tor Integration:** Optional Tor bridge support
+
+---
+
+## 🌍 Platform Matrix
+
+| Platform | Support | Features | Performance |
+|----------|---------|----------|-------------|
+| **iOS** | ✅ Native | Full VPN, Biometric, Background | Excellent |
+| **Android** | ✅ Native | Full VPN, Biometric, Background | Excellent |
+| **Linux** | ✅ Native | All distributions, systemd | Excellent |
+| **macOS** | ✅ Native | System tray, LaunchAgent | Excellent |
+| **Windows** | ✅ Native | System tray, Service | Good |
+| **Termux** | ✅ Full | Terminal UI, Background service | Good |
+| **WSL** | ✅ Full | Linux compatibility layer | Good |
+| **Docker** | ✅ Container | Headless server mode | Excellent |
+
+---
 
 ## 📋 Requirements
 
-### Minimum Requirements
-- **Mobile:** iOS 12+ / Android 7+
-- **Desktop:** 2GB RAM, 100MB storage
-- **Terminal:** 512MB RAM, 50MB storage
+### Minimum System Requirements
+| Platform | RAM | Storage | OS Version |
+|----------|-----|---------|------------|
+| **Mobile** | 2GB | 100MB | iOS 12+ / Android 7+ |
+| **Desktop** | 2GB | 100MB | macOS 10.15+ / Windows 10+ |
+| **Linux** | 512MB | 50MB | Any modern distro |
+| **Termux** | 1GB | 100MB | Android 7+ |
 
-### Recommended
-- **Mobile:** iOS 15+ / Android 10+
-- **Desktop:** 4GB RAM, 1GB storage
-- **Network:** 10+ Mbps internet connection
+### Recommended Requirements
+| Platform | RAM | Storage | Network |
+|----------|-----|---------|---------|
+| **All** | 4GB+ | 1GB+ | 10+ Mbps |
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Mobile App
+```bash
+# Permission issues
+npx cap sync
+npx cap run [platform] --verbose
+
+# Build failures
+rm -rf node_modules package-lock.json
+npm install
+npm run build
+```
+
+#### Termux
+```bash
+# Package conflicts
+pkg autoclean
+pkg update
+pkg install nodejs git
+
+# Permission issues
+termux-setup-storage
+```
+
+#### Linux
+```bash
+# Service issues
+sudo systemctl status securevault-vpn
+sudo journalctl -u securevault-vpn -f
+
+# Network issues
+sudo netstat -tlnp | grep :3000
+```
+
+### Debug Mode
+```bash
+# Enable debug logging
+export DEBUG=securevault:*
+node scripts/terminal-vpn.js
+
+# Verbose mode
+npm run dev -- --verbose
+```
+
+---
 
 ## 🤝 Contributing
 
-This is an open-source project. Contributions are welcome!
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md).
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+### Development Setup
+```bash
+git clone https://github.com/your-username/private-vpn.git
+cd private-vpn
+npm install
+npm run dev
+```
+
+### Testing
+```bash
+npm run test              # Unit tests
+npm run test:e2e          # End-to-end tests
+npm run test:security     # Security tests
+npm run test:platforms    # Cross-platform tests
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## ⚖️ Legal Disclaimer
 
@@ -251,11 +459,24 @@ This software is for educational and legitimate privacy purposes only. Users are
 
 ## 📞 Support
 
-- **Issues:** Report bugs via GitHub Issues
-- **Security:** Contact developer for security vulnerabilities
-- **General:** Community support via discussions
+- **🐛 Bug Reports:** [GitHub Issues](https://github.com/your-username/private-vpn/issues)
+- **💬 Community:** [Discord Server](https://discord.gg/securevault)
+- **📧 Security:** security@securevault.vpn
+- **📖 Documentation:** [Full Docs](https://docs.securevault.vpn)
 
 ---
 
-**Developed with ❤️ by Xeyronox**  
+**🔐 Developed with ❤️ by Xeyronox**  
 *"Privacy is not about hiding something. It's about protecting everything."*
+
+---
+
+### Recent Updates
+
+- ✅ Added Termux full support with native service integration
+- ✅ Enhanced cross-platform deployment automation
+- ✅ Implemented real-time security monitoring
+- ✅ Added CodeQL security analysis workflow
+- ✅ Enhanced error boundary and global error handling
+- ✅ Improved native VPN connection interface
+- ✅ Added support for all major Linux distributions

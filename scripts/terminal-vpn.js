@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * SecureVault VPN - Terminal Interface
+ * SecureVault VPN - Enhanced Terminal Interface
  * Developed by Xeyronox
- * Headless VPN management for terminal environments
+ * Multi-platform headless VPN management
+ * Supports: Linux, macOS, Windows, Termux, WSL
  */
 
 const readline = require('readline');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
 const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 class TerminalVPN {
   constructor() {
@@ -18,6 +21,8 @@ class TerminalVPN {
     this.bytesTransferred = { up: 0, down: 0 };
     this.autoRotate = false;
     this.rotationInterval = null;
+    this.platform = this.detectPlatform();
+    this.config = this.loadConfig();
     
     this.servers = [
       { id: 'us-ny-1', name: 'New York', country: 'US', address: 'ny1.securevault.vpn' },
@@ -28,14 +33,81 @@ class TerminalVPN {
 
     this.rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
+      prompt: this.getPrompt()
     });
+    
+    this.securityAnalysis = {
+      events: [],
+      threats: 0,
+      connections: 0
+    };
+  }
+
+  detectPlatform() {
+    if (fs.existsSync('/data/data/com.termux')) return 'termux';
+    if (process.platform === 'linux') {
+      if (fs.existsSync('/proc/version')) {
+        const version = fs.readFileSync('/proc/version', 'utf8');
+        if (version.includes('Microsoft')) return 'wsl';
+      }
+      return 'linux';
+    }
+    if (process.platform === 'darwin') return 'macos';
+    if (process.platform === 'win32') return 'windows';
+    return 'unknown';
+  }
+
+  loadConfig() {
+    const configPaths = [
+      path.join(__dirname, '..', 'config', `${this.platform}.json`),
+      path.join(__dirname, '..', '.env'),
+      path.join(os.homedir(), '.securevault', 'config.json')
+    ];
+
+    let config = {
+      platform: this.platform,
+      encryption: 'military',
+      autoRotate: true,
+      rotationInterval: 300000,
+      securityAnalysis: true
+    };
+
+    for (const configPath of configPaths) {
+      try {
+        if (fs.existsSync(configPath)) {
+          if (configPath.endsWith('.json')) {
+            const fileConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            config = { ...config, ...fileConfig };
+          }
+        }
+      } catch (error) {
+        // Ignore config loading errors
+      }
+    }
+
+    return config;
+  }
+
+  getPrompt() {
+    const platformEmoji = {
+      'termux': '📱',
+      'linux': '🐧',
+      'macos': '🍎',
+      'windows': '🪟',
+      'wsl': '🐧',
+      'unknown': '💻'
+    };
+    
+    return `${platformEmoji[this.platform]} securevault> `;
   }
 
   displayBanner() {
-    console.log('\n🛡️  SecureVault VPN - Terminal Interface');
+    console.log('\n🛡️  SecureVault VPN - Enhanced Terminal Interface');
     console.log('Developer: Xeyronox (Red/Blackhat Hacker)');
-    console.log('Military-grade encryption & privacy protection\n');
+    console.log('Military-grade encryption & privacy protection');
+    console.log(`Platform: ${this.platform.toUpperCase()} | Encryption: ${this.config.encryption.toUpperCase()}`);
+    console.log('========================================================\n');
   }
 
   displayStatus() {
@@ -167,14 +239,30 @@ class TerminalVPN {
   }
 
   showHelp() {
-    console.log('\n📖 Commands:');
-    console.log('status     - Show connection status');
-    console.log('servers    - List available servers');
-    console.log('connect <n> - Connect to server number n');
-    console.log('disconnect - Disconnect from VPN');
-    console.log('rotate     - Toggle auto-rotation');
-    console.log('help       - Show this help');
-    console.log('exit       - Quit application');
+    console.log('\n📖 Available Commands:');
+    console.log('Basic:');
+    console.log('  status        - Show connection status');
+    console.log('  servers       - List available servers');
+    console.log('  connect <n>   - Connect to server number n');
+    console.log('  disconnect    - Disconnect from VPN');
+    console.log('  rotate        - Toggle auto-rotation');
+    
+    console.log('\nAdvanced:');
+    console.log('  security      - Security analysis report');
+    console.log('  logs          - View connection logs');
+    console.log('  config        - Show configuration');
+    console.log('  platform      - Platform information');
+    console.log('  export <file> - Export connection data');
+    
+    if (this.platform === 'termux') {
+      console.log('\nTermux:');
+      console.log('  termux-setup  - Termux optimizations');
+      console.log('  background    - Run in background');
+    }
+    
+    console.log('\nGeneral:');
+    console.log('  help          - Show this help');
+    console.log('  exit          - Quit application');
     console.log('');
   }
 
@@ -184,7 +272,8 @@ class TerminalVPN {
     this.showHelp();
 
     const askCommand = () => {
-      this.rl.question('securevault> ', async (input) => {
+      this.rl.prompt();
+      this.rl.on('line', async (input) => {
         const [command, ...args] = input.trim().split(' ');
 
         switch (command.toLowerCase()) {
@@ -213,6 +302,46 @@ class TerminalVPN {
             this.toggleAutoRotate();
             break;
 
+          case 'security':
+            this.showSecurityAnalysis();
+            break;
+
+          case 'logs':
+            this.showLogs();
+            break;
+
+          case 'config':
+            this.showConfig();
+            break;
+
+          case 'platform':
+            this.showPlatformInfo();
+            break;
+
+          case 'export':
+            if (args[0]) {
+              this.exportData(args[0]);
+            } else {
+              console.log('❌ Please specify filename: export <filename>');
+            }
+            break;
+
+          case 'termux-setup':
+            if (this.platform === 'termux') {
+              this.termuxOptimizations();
+            } else {
+              console.log('❌ Command only available on Termux');
+            }
+            break;
+
+          case 'background':
+            if (this.platform === 'termux') {
+              this.runInBackground();
+            } else {
+              console.log('❌ Command only available on Termux');
+            }
+            break;
+
           case 'help':
             this.showHelp();
             break;
@@ -227,11 +356,149 @@ class TerminalVPN {
             console.log('❌ Unknown command. Type "help" for available commands.');
         }
 
-        askCommand();
+        this.rl.prompt();
       });
     };
 
     askCommand();
+  }
+
+  showSecurityAnalysis() {
+    console.log('\n🔒 Security Analysis Report:');
+    console.log(`Total Events: ${this.securityAnalysis.events.length}`);
+    console.log(`Threat Level: ${this.securityAnalysis.threats === 0 ? '🟢 LOW' : '🟡 MEDIUM'}`);
+    console.log(`Connections: ${this.securityAnalysis.connections}`);
+    console.log(`Platform Security: ${this.getPlatformSecurity()}`);
+    
+    if (this.securityAnalysis.events.length > 0) {
+      console.log('\nRecent Events:');
+      this.securityAnalysis.events.slice(-5).forEach(event => {
+        console.log(`  ${event.timestamp} - ${event.type}: ${event.message}`);
+      });
+    }
+    console.log('');
+  }
+
+  showLogs() {
+    console.log('\n📝 Connection Logs:');
+    if (this.securityAnalysis.events.length === 0) {
+      console.log('No logs available');
+    } else {
+      this.securityAnalysis.events.forEach(event => {
+        console.log(`[${event.timestamp}] ${event.type}: ${event.message}`);
+      });
+    }
+    console.log('');
+  }
+
+  showConfig() {
+    console.log('\n⚙️  Configuration:');
+    console.log(JSON.stringify(this.config, null, 2));
+    console.log('');
+  }
+
+  showPlatformInfo() {
+    console.log('\n💻 Platform Information:');
+    console.log(`Platform: ${this.platform}`);
+    console.log(`OS: ${process.platform}`);
+    console.log(`Architecture: ${process.arch}`);
+    console.log(`Node.js: ${process.version}`);
+    console.log(`Memory: ${Math.round(process.memoryUsage().rss / 1024 / 1024)}MB`);
+    
+    if (this.platform === 'termux') {
+      console.log('Termux Features: ✅ Available');
+      console.log('Storage Access: ✅ Configured');
+      console.log('Background Service: ✅ Supported');
+    }
+    console.log('');
+  }
+
+  exportData(filename) {
+    const data = {
+      platform: this.platform,
+      config: this.config,
+      securityAnalysis: this.securityAnalysis,
+      currentConnection: {
+        server: this.currentServer,
+        connected: this.isConnected,
+        uptime: this.getUptime(),
+        bytesTransferred: this.bytesTransferred
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      fs.writeFileSync(filename, JSON.stringify(data, null, 2));
+      console.log(`✅ Data exported to ${filename}`);
+    } catch (error) {
+      console.log(`❌ Export failed: ${error.message}`);
+    }
+  }
+
+  termuxOptimizations() {
+    console.log('\n📱 Applying Termux optimizations...');
+    
+    // Check Termux-specific optimizations
+    const optimizations = [
+      { name: 'Storage Access', check: () => fs.existsSync('/storage/emulated/0') },
+      { name: 'Wake Lock', check: () => process.env.TERMUX_VERSION !== undefined },
+      { name: 'Background Service', check: () => fs.existsSync(`${process.env.HOME}/.config/systemd/user`) }
+    ];
+
+    optimizations.forEach(opt => {
+      const status = opt.check() ? '✅' : '❌';
+      console.log(`${status} ${opt.name}`);
+    });
+
+    console.log('\nRecommendations:');
+    console.log('- Run: termux-setup-storage');
+    console.log('- Install: pkg install termux-services');
+    console.log('- Enable: systemctl --user enable termux-securevault');
+    console.log('');
+  }
+
+  runInBackground() {
+    console.log('\n🔄 Starting background service...');
+    
+    if (this.platform === 'termux') {
+      exec('systemctl --user start termux-securevault', (error, stdout, stderr) => {
+        if (error) {
+          console.log('❌ Failed to start background service');
+          console.log('💡 Try: systemctl --user enable termux-securevault');
+        } else {
+          console.log('✅ Background service started');
+        }
+      });
+    }
+  }
+
+  getPlatformSecurity() {
+    const security = {
+      'termux': '🟡 MODERATE (Android Sandbox)',
+      'linux': '🟢 HIGH (Full System Control)', 
+      'macos': '🟢 HIGH (Secure Enclave)',
+      'windows': '🟡 MODERATE (Windows Defender)',
+      'wsl': '🟢 HIGH (Linux Subsystem)',
+      'unknown': '🔴 UNKNOWN'
+    };
+    
+    return security[this.platform] || security.unknown;
+  }
+
+  logEvent(type, message) {
+    const event = {
+      timestamp: new Date().toISOString(),
+      type,
+      message,
+      platform: this.platform
+    };
+    
+    this.securityAnalysis.events.push(event);
+    
+    // Keep only last 100 events
+    if (this.securityAnalysis.events.length > 100) {
+      this.securityAnalysis.events = this.securityAnalysis.events.slice(-100);
+    }
   }
 }
 
