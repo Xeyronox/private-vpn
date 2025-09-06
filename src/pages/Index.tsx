@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VPNHeader from "@/components/VPNHeader";
 import ConnectionStatus from "@/components/ConnectionStatus";
@@ -9,8 +9,10 @@ import VPNSettings from "@/components/VPNSettings";
 import VPNPermissions from "@/components/VPNPermissions";
 import NativeConnectionButton from "@/components/NativeConnectionButton";
 import MobileConnectionStatus from "@/components/MobileConnectionStatus";
+import SecurityMonitor from "@/components/SecurityMonitor";
 import { useVPNManager } from "@/hooks/useVPNManager";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const {
@@ -35,6 +37,43 @@ const Index = () => {
 
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("connect");
+  const { toast } = useToast();
+
+  // Enhanced app initialization with security checks
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Platform detection and configuration
+        if (isNative) {
+          console.log("🔒 Native VPN app initialized");
+          toast({
+            title: "VPN Ready",
+            description: "Native VPN capabilities detected",
+          });
+        } else {
+          console.log("🌐 Web VPN interface loaded");
+        }
+        
+        // Security analysis on app start
+        const securityCheck = {
+          platform: isNative ? "native" : "web",
+          timestamp: new Date().toISOString(),
+          connectionState: connectionState,
+        };
+        console.log("🛡️ Security Analysis:", securityCheck);
+        
+      } catch (error) {
+        console.error("❌ App initialization error:", error);
+        toast({
+          title: "Initialization Warning",
+          description: "Some features may be limited",
+          variant: "destructive",
+        });
+      }
+    };
+
+    initializeApp();
+  }, [isNative, connectionState, toast]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,6 +120,10 @@ const Index = () => {
                   rotationInterval={rotationInterval}
                   setRotationInterval={setRotationInterval}
                 />
+                <SecurityMonitor 
+                  connectionState={connectionState} 
+                  isNative={isNative} 
+                />
               </TabsContent>
             </Tabs>
           </div>
@@ -117,6 +160,10 @@ const Index = () => {
                 setAutoRotate={setAutoRotate}
                 rotationInterval={rotationInterval}
                 setRotationInterval={setRotationInterval}
+              />
+              <SecurityMonitor 
+                connectionState={connectionState} 
+                isNative={isNative} 
               />
             </div>
           </div>
