@@ -40,7 +40,7 @@
 
 ### 🌐 Web Development
 ```bash
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/xeyronox/private-vpn.git
 cd private-vpn
 npm install
 npm run dev
@@ -56,7 +56,7 @@ npm run dev
 #### Setup Steps
 ```bash
 # 1. Clone and install
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/xeyronox/private-vpn.git
 cd private-vpn
 npm install
 
@@ -82,10 +82,10 @@ Works on Ubuntu, Debian, Arch, Fedora, Kali, Parrot, BlackArch, Guardian, etc.
 
 ```bash
 # Auto-detection script
-curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xeyronox/private-vpn/main/scripts/install.sh | bash
 
 # Manual installation
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/Xeyronox/private-vpn.git
 cd private-vpn
 npm install
 npm run build
@@ -116,7 +116,7 @@ sudo zypper install nodejs npm
 ```bash
 # Install via Homebrew
 brew install node
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/Xeyronox/private-vpn.git
 cd private-vpn
 npm install && npm run build
 npm run preview
@@ -133,7 +133,7 @@ choco install nodejs    # Using Chocolatey
 winget install OpenJS.NodeJS
 
 # Setup
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/xeyronox/private-vpn.git
 cd private-vpn
 npm install
 npm run build
@@ -146,7 +146,7 @@ npm run preview
 wsl --install
 
 # Inside WSL, follow Linux instructions
-curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xeyronox/private-vpn/main/scripts/install.sh | bash
 ```
 
 ---
@@ -162,7 +162,7 @@ pkg update && pkg upgrade -y
 pkg install nodejs git python build-essential
 
 # Clone and setup
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/xeyronox/private-vpn.git
 cd private-vpn
 npm install
 npm run build
@@ -190,10 +190,10 @@ systemctl --user start termux-securevault
 ### Production Server Setup
 ```bash
 # Quick deploy (auto-detects OS)
-curl -fsSL https://raw.githubusercontent.com/your-username/private-vpn/main/scripts/deploy.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/xeyronox/private-vpn/main/scripts/deploy.sh | sudo bash
 
 # Manual setup
-git clone https://github.com/your-username/private-vpn.git
+git clone https://github.com/xeyronox/private-vpn.git
 cd private-vpn
 npm install
 npm run build
@@ -459,10 +459,8 @@ This software is for educational and legitimate privacy purposes only. Users are
 
 ## 📞 Support
 
-- **🐛 Bug Reports:** [GitHub Issues](https://github.com/your-username/private-vpn/issues)
-- **💬 Community:** [Discord Server](https://discord.gg/securevault)
-- **📧 Security:** security@securevault.vpn
-- **📖 Documentation:** [Full Docs](https://docs.securevault.vpn)
+- **🐛 Bug Reports:** [GitHub Issues](https://github.com/xeyronox/private-vpn/issues)
+- **📧 Security:** xeyronox@outlook.com
 
 ---
 
