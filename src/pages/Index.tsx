@@ -10,6 +10,9 @@ import VPNPermissions from "@/components/VPNPermissions";
 import NativeConnectionButton from "@/components/NativeConnectionButton";
 import MobileConnectionStatus from "@/components/MobileConnectionStatus";
 import SecurityMonitor from "@/components/SecurityMonitor";
+import AISystem from "@/components/AISystem";
+import AutoHealingSystem from "@/components/AutoHealingSystem";
+import PrivacyPolicy from "@/components/PrivacyPolicy";
 import { useVPNManager } from "@/hooks/useVPNManager";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
@@ -93,9 +96,11 @@ const Index = () => {
             />
             
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="connect">Connect</TabsTrigger>
                 <TabsTrigger value="servers">Servers</TabsTrigger>
+                <TabsTrigger value="ai">AI System</TabsTrigger>
+                <TabsTrigger value="privacy">Privacy</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
               </TabsList>
               
@@ -109,6 +114,15 @@ const Index = () => {
                   selectedServer={selectedServer}
                   onServerSelect={setSelectedServer}
                 />
+              </TabsContent>
+              
+              <TabsContent value="ai" className="space-y-4">
+                <AISystem connectionState={connectionState} isNative={isNative} />
+                <AutoHealingSystem connectionState={connectionState} />
+              </TabsContent>
+              
+              <TabsContent value="privacy" className="space-y-4">
+                <PrivacyPolicy />
               </TabsContent>
               
               <TabsContent value="settings" className="space-y-4">
