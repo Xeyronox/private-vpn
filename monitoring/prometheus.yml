@@ -1,0 +1,68 @@
+# 🔍 MONITORING: Prometheus configuration for VPN application
+# 🚀 OPTIMIZE: Comprehensive metrics collection and alerting
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# 🔁 REFACTOR: Rule files for alerting
+rule_files:
+  - "alert_rules.yml"
+
+# 🚀 OPTIMIZE: Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# 🔍 MONITORING: Scrape configurations
+scrape_configs:
+  # 🔁 REFACTOR: Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 🚀 OPTIMIZE: Traefik metrics
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8080']
+    metrics_path: /metrics
+
+  # 🔍 MONITORING: Application metrics
+  - job_name: 'securevault-vpn'
+    static_configs:
+      - targets: ['securevault-vpn:8080']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # 🔒 SECURITY: Node exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # 🐳 DOCKER: Container metrics
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['docker-exporter:9323']
+
+  # 🔍 MONITORING: Grafana metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: /metrics
+
+# 🚀 OPTIMIZE: Remote write configuration for long-term storage
+remote_write:
+  - url: "http://cortex:9009/api/prom/push"
+    queue_config:
+      max_samples_per_send: 1000
+      max_shards: 200
+      capacity: 2500
+
+# 🔒 SECURITY: Global configuration
+global:
+  external_labels:
+    monitor: 'securevault-vpn-monitor'
+    environment: 'production'
+    project: 'xeyronox-vpn'

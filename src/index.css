@@ -26,13 +26,28 @@
   --ring: 217 19% 30%;
   --radius: 0.75rem;
   
-  /* VPN Theme Colors */
+  /* 🎨 DESIGN: Enhanced VPN Theme Colors */
   --vpn-secure: 142 76% 36%;
   --vpn-connected: 142 76% 36%;
   --vpn-connecting: 43 100% 65%;
   --vpn-disconnected: 0 84% 60%;
   --vpn-cyber-blue: 198 93% 60%;
   --vpn-dark-surface: 217 19% 16%;
+  
+  /* 🚀 OPTIMIZE: Performance optimized gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(var(--vpn-secure)), hsl(var(--vpn-cyber-blue)));
+  --gradient-connecting: linear-gradient(45deg, hsl(var(--vpn-connecting)), hsl(var(--vpn-cyber-blue)));
+  --gradient-secure: linear-gradient(180deg, hsl(var(--vpn-secure) / 0.1), hsl(var(--vpn-secure) / 0.05));
+  
+  /* 🔐 SECURITY: Status indicator colors */
+  --status-success: 142 76% 36%;
+  --status-warning: 43 100% 65%;
+  --status-error: 0 84% 60%;
+  --status-info: 198 93% 60%;
+  
+  /* 🎯 FOCUS: Enhanced interactive elements */
+  --focus-ring: 198 93% 60%;
+  --focus-offset: 2px;
 }
 
 * {
@@ -138,11 +153,60 @@ body {
   }
 }
 
-/* Touch targets for mobile */
+/* 📱 MOBILE: Enhanced touch targets and accessibility */
 @media (pointer: coarse) {
   button, [role="button"] {
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
+  }
+}
+
+/* 🚀 OPTIMIZE: Critical CSS performance optimizations */
+.critical-path {
+  font-display: swap;
+  will-change: transform, opacity;
+}
+
+/* 🔐 SECURITY: Focus indicators for accessibility */
+*:focus-visible {
+  outline: 2px solid hsl(var(--focus-ring));
+  outline-offset: var(--focus-offset);
+  border-radius: 2px;
+}
+
+/* 🎯 FOCUS: Enhanced button focus states */
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid hsl(var(--focus-ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--focus-ring) / 0.2);
+}
+
+/* 🚀 OPTIMIZE: Hardware acceleration for animations */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 🔁 REFACTOR: Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 🎨 DESIGN: Enhanced dark mode contrast */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 100%;
+    --foreground: 0 0% 100%;
+    --background: 0 0% 0%;
   }
 }

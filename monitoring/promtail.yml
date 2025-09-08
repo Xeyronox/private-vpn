@@ -1,0 +1,170 @@
+# 📝 LOGGING: Promtail configuration for log collection
+# 🔍 MONITORING: Centralized logging for VPN application
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+# 🔍 MONITORING: Log scraping configurations
+scrape_configs:
+  # 🐳 DOCKER: Container logs
+  - job_name: docker_containers
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker_containers
+          __path__: /var/lib/docker/containers/*/*log
+    
+    pipeline_stages:
+      # 🔁 REFACTOR: JSON parsing for Docker logs
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            timestamp: time
+      
+      # 🚀 OPTIMIZE: Extract log level
+      - regex:
+          expression: '(?P<level>ERROR|WARN|INFO|DEBUG)'
+          source: output
+      
+      # 🔒 SECURITY: Extract security events
+      - regex:
+          expression: '🔐|🔒|🛡️|🚨|⚠️'
+          source: output
+      
+      # 📊 MONITORING: Label extraction
+      - labels:
+          level:
+          stream:
+
+  # 📱 APPLICATION: VPN application logs
+  - job_name: vpn_application
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: vpn_application
+          component: securevault-vpn
+          __path__: /var/log/nginx/*.log
+    
+    pipeline_stages:
+      # 🔍 MONITORING: Parse nginx access logs
+      - regex:
+          expression: '^(?P<remote_addr>\S+) \S+ (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<method>\S+) (?P<request_uri>\S+) (?P<protocol>\S+)" (?P<status>\d+) (?P<bytes_sent>\d+) "(?P<http_referer>[^"]*)" "(?P<user_agent>[^"]*)"'
+      
+      # 🚀 OPTIMIZE: Extract metrics
+      - labels:
+          method:
+          status:
+          remote_addr:
+      
+      # 🔒 SECURITY: Flag suspicious requests
+      - match:
+          selector: '{status=~"4..|5.."}'
+          stages:
+            - labels:
+                alert_level: "warning"
+
+  # 🔒 SECURITY: Security logs
+  - job_name: security_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: security_logs
+          component: security
+          __path__: /var/log/auth.log
+    
+    pipeline_stages:
+      # 🔐 SECURITY: Parse authentication logs
+      - regex:
+          expression: '(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+) (?P<hostname>\S+) (?P<program>\S+):\s*(?P<message>.*)'
+      
+      # 🚨 ALERTING: Detect failed logins
+      - match:
+          selector: '{message=~".*Failed.*"}'
+          stages:
+            - labels:
+                alert_level: "critical"
+                event_type: "authentication_failure"
+
+  # 📊 MONITORING: System logs
+  - job_name: system_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system_logs
+          component: system
+          __path__: /var/log/syslog
+    
+    pipeline_stages:
+      # 🔍 MONITORING: Parse syslog format
+      - regex:
+          expression: '(?P<timestamp>\w+\s+\d+\s+\d+:\d+:\d+) (?P<hostname>\S+) (?P<program>\S+)(?:\[(?P<pid>\d+)\])?: (?P<message>.*)'
+      
+      # 🚀 OPTIMIZE: Label common programs
+      - labels:
+          program:
+          hostname:
+      
+      # 🔒 SECURITY: Flag kernel errors
+      - match:
+          selector: '{program="kernel"}'
+          stages:
+            - regex:
+                expression: '(?P<level>ERROR|WARNING|INFO)'
+                source: message
+            - labels:
+                log_level:
+
+  # 🔍 MONITORING: Performance logs
+  - job_name: performance_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: performance_logs
+          component: performance
+          __path__: /var/log/performance.log
+    
+    pipeline_stages:
+      # 🚀 OPTIMIZE: Parse performance metrics
+      - json:
+          expressions:
+            timestamp: timestamp
+            metric_name: metric
+            value: value
+            component: component
+      
+      # 📊 MONITORING: Convert to numeric
+      - template:
+          source: value
+          template: '{{ .value | float64 }}'
+      
+      # 🔁 REFACTOR: Label metrics
+      - labels:
+          metric_name:
+          component:
+
+# 🔒 SECURITY: Global configuration
+global:
+  file_sd_configs:
+    - files:
+        - /etc/promtail/targets/*.yml
+      refresh_interval: 10s
+
+# 🚀 OPTIMIZE: Server configuration
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: info
+  healthcheck_timeout: 10s

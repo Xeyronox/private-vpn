@@ -1,0 +1,178 @@
+# 🚨 ALERTING: Comprehensive alert rules for VPN application
+# 🔒 SECURITY: Security and performance monitoring alerts
+
+groups:
+  # 🚀 OPTIMIZE: Application performance alerts
+  - name: application_alerts
+    rules:
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, http_request_duration_seconds_bucket) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High latency detected"
+          description: "95th percentile latency is {{ $value }}s for the last 5 minutes"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes"
+
+      - alert: ApplicationDown
+        expr: up{job="securevault-vpn"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "SecureVault VPN application is down"
+          description: "The VPN application has been down for more than 1 minute"
+
+  # 🔒 SECURITY: Security monitoring alerts
+  - name: security_alerts
+    rules:
+      - alert: SuspiciousTraffic
+        expr: rate(http_requests_total{status="429"}[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate limit triggers detected"
+          description: "Rate limiting is being triggered frequently: {{ $value }} requests/sec"
+
+      - alert: UnauthorizedAccess
+        expr: rate(http_requests_total{status="401"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High unauthorized access attempts"
+          description: "{{ $value }} unauthorized access attempts per second"
+
+      - alert: SecurityScanDetected
+        expr: rate(http_requests_total{user_agent=~".*scanner.*|.*bot.*|.*crawl.*"}[5m]) > 1
+        for: 5m
+        labels:
+          severity: info
+          component: security
+        annotations:
+          summary: "Security scanning activity detected"
+          description: "Potential security scanning detected: {{ $value }} requests/sec"
+
+  # 🔍 MONITORING: Infrastructure alerts
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: ContainerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Container is down"
+          description: "Container {{ $labels.job }} on {{ $labels.instance }} is down"
+
+  # 🚀 OPTIMIZE: VPN-specific alerts
+  - name: vpn_alerts
+    rules:
+      - alert: VPNConnectionFailures
+        expr: rate(vpn_connection_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          component: vpn
+        annotations:
+          summary: "VPN connection failures detected"
+          description: "{{ $value }} VPN connection failures per second"
+
+      - alert: VPNServerOverloaded
+        expr: vpn_server_load_percentage > 95
+        for: 5m
+        labels:
+          severity: critical
+          component: vpn
+        annotations:
+          summary: "VPN server overloaded"
+          description: "VPN server {{ $labels.server }} is {{ $value }}% loaded"
+
+      - alert: VPNEncryptionFailure
+        expr: rate(vpn_encryption_failures_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: vpn
+        annotations:
+          summary: "VPN encryption failures detected"
+          description: "{{ $value }} encryption failures per second on {{ $labels.server }}"
+
+      - alert: VPNLeakDetected
+        expr: vpn_dns_leak_detected == 1
+        for: 0m
+        labels:
+          severity: critical
+          component: vpn
+        annotations:
+          summary: "DNS leak detected"
+          description: "DNS leak detected on VPN connection {{ $labels.connection_id }}"
+
+  # 🔐 SECURITY: Certificate and SSL alerts
+  - name: ssl_alerts
+    rules:
+      - alert: SSLCertificateExpiring
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 0m
+        labels:
+          severity: warning
+          component: ssl
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "SSL certificate for {{ $labels.instance }} expires in {{ $value | humanizeDuration }}"
+
+      - alert: SSLCertificateInvalid
+        expr: probe_ssl_cert_valid == 0
+        for: 0m
+        labels:
+          severity: critical
+          component: ssl
+        annotations:
+          summary: "Invalid SSL certificate"
+          description: "SSL certificate for {{ $labels.instance }} is invalid"

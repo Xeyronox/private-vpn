@@ -1,0 +1,213 @@
+# 🐳 DOCKER: Production-ready Docker Compose configuration
+# 🔒 SECURITY: Hardened container orchestration with monitoring
+# 🚀 OPTIMIZE: High-availability setup with load balancing
+
+version: '3.8'
+
+services:
+  # 🚀 OPTIMIZE: Main VPN application
+  securevault-vpn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: securevault-vpn
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - TZ=UTC
+    # 🔐 SECURITY: Resource limits and security options
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
+    # 🔒 SECURITY: Health checks
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # 🔁 REFACTOR: Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - vpn-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.securevault.rule=Host(\`vpn.xeyronox.dev\`)"
+      - "traefik.http.services.securevault.loadbalancer.server.port=8080"
+      - "traefik.http.routers.securevault.tls=true"
+      - "traefik.http.routers.securevault.tls.certresolver=letsencrypt"
+
+  # 🔒 SECURITY: Reverse proxy with SSL termination
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      # 🔐 SECURITY: Traefik configuration
+      - --api.dashboard=true
+      - --api.insecure=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=xeyronox@outlook.com
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
+      # 🚀 OPTIMIZE: Performance and security
+      - --global.sendanonymoususage=false
+      - --log.level=INFO
+      - --accesslog=true
+      - --metrics.prometheus=true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8081:8080"  # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-letsencrypt:/letsencrypt
+    networks:
+      - vpn-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(\`traefik.xeyronox.dev\`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.certresolver=letsencrypt"
+      # 🔐 SECURITY: Redirect HTTP to HTTPS
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.redirect-https.rule=hostregexp(\`{host:.+}\`)"
+      - "traefik.http.routers.redirect-https.entrypoints=web"
+      - "traefik.http.routers.redirect-https.middlewares=redirect-to-https"
+
+  # 🔍 MONITORING: Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus-data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - vpn-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(\`prometheus.xeyronox.dev\`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+
+  # 📊 MONITORING: Grafana for metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secure_password_change_me
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - vpn-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(\`grafana.xeyronox.dev\`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+  # 🔒 SECURITY: Security scanning with Trivy
+  trivy:
+    image: aquasec/trivy:latest
+    container_name: trivy-scanner
+    restart: "no"
+    command: 
+      - image
+      - --format
+      - json
+      - --output
+      - /reports/scan-results.json
+      - securevault-vpn:latest
+    volumes:
+      - trivy-reports:/reports
+    networks:
+      - vpn-network
+    depends_on:
+      - securevault-vpn
+
+  # 📝 LOGGING: Centralized logging with Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+    networks:
+      - vpn-network
+
+  # 🔍 LOGGING: Log collection with Promtail
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - vpn-network
+    depends_on:
+      - loki
+
+# 🔒 SECURITY: Network isolation
+networks:
+  vpn-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# 🚀 OPTIMIZE: Persistent volumes
+volumes:
+  traefik-letsencrypt:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+  trivy-reports:
+    driver: local
