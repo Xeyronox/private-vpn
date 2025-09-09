@@ -103,10 +103,12 @@ class TerminalVPN {
   }
 
   displayBanner() {
-    console.log('\n🛡️  SecureVault VPN - Enhanced Terminal Interface');
-    console.log('Developer: Xeyronox (Red/Blackhat Hacker)');
+    console.log('\n🛡️  SecureVault VPN - Next-Generation Terminal Interface');
+    console.log('🧠 AI-Enhanced | 🔐 Quantum-Secured | 🚀 Self-Healing');
+    console.log('Developer: Xeyronox | GitHub: @Xeyronox');
     console.log('Military-grade encryption & privacy protection');
     console.log(`Platform: ${this.platform.toUpperCase()} | Encryption: ${this.config.encryption.toUpperCase()}`);
+    console.log('🔬 Quantum Computing | 🧠 Neural Networks | 🛡️ Zero-Trust Architecture');
     console.log('========================================================\n');
   }
 
@@ -249,6 +251,9 @@ class TerminalVPN {
     
     console.log('\nAdvanced:');
     console.log('  security      - Security analysis report');
+    console.log('  quantum       - Quantum encryption status');
+    console.log('  ai-status     - AI system diagnostics');
+    console.log('  neural        - Neural network analysis');
     console.log('  logs          - View connection logs');
     console.log('  config        - Show configuration');
     console.log('  platform      - Platform information');
@@ -304,6 +309,18 @@ class TerminalVPN {
 
           case 'security':
             this.showSecurityAnalysis();
+            break;
+
+          case 'quantum':
+            this.showQuantumStatus();
+            break;
+
+          case 'ai-status':
+            this.showAIStatus();
+            break;
+
+          case 'neural':
+            this.showNeuralAnalysis();
             break;
 
           case 'logs':
